@@ -101,6 +101,9 @@ package Pn.Compiler.Names is
    function Cls_To_Xml_Func
      (C: in Cls) return Ustring;
 
+   function Cls_To_Json_Func
+     (C: in Cls) return Ustring;
+
    function Cls_Assign_Comp_Func
      (C: in Cls;
       F: in Ustring) return Ustring;

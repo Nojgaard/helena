@@ -3,10 +3,13 @@
 #include "dfs.h"
 #include "model.h"
 #include "dfs_stack.h"
+#include "state.h"
 #include "prop.h"
 #include "reduction.h"
 #include "workers.h"
 #include "por_analysis.h"
+
+#define MOD_BUILD_GRAPH 1
 
 #if CFG_ALGO_DFS == 0 && CFG_ALGO_TARJAN == 0
 
@@ -60,6 +63,13 @@ htbl_t H = NULL;
     }                                                                   \
     if(is_new) {                                                        \
       context_incr_stat(STAT_STATES_STORED, w, 1);                      \
+	    FILE * gf = context_graph_file();								\
+		if (id != id_init) {											\
+			fprintf(gf, ",");												\
+		}																\
+	    fprintf(gf, "{\"id\": %u, \"state\":", id);\
+		state_to_json(now, gf);		\
+	    fprintf(gf, "}");\
     }                                                                   \
     if(!dfs_stack_fully_expanded(stack)) {                              \
       context_incr_stat(STAT_STATES_REDUCED, w, 1);                     \
@@ -97,10 +107,11 @@ void * dfs_worker
   htbl_meta_data_t mdata;
   uint32_t i;
   heap_t heap = local_heap_new();
+  FILE * gf = context_open_graph_file();
   state_t copy, now = state_initial(heap);
   dfs_stack_t stack = dfs_stack_new(CFG_DFS_STACK_BLOCK_SIZE,
                                     shuffle, states_stored);
-  htbl_id_t id, id_seed, id_succ, id_popped;
+  htbl_id_t id, id_seed, id_succ, id_popped, id_init;
   bool_t push, blue = TRUE, is_new, state_popped = FALSE, on_stack;
   event_t e;
   event_list_t en;
@@ -112,6 +123,10 @@ void * dfs_worker
     darray_new(SYSTEM_HEAP, sizeof(htbl_id_t)) : NULL;
   darray_t scc = tarjan ?
     darray_new(SYSTEM_HEAP, sizeof(htbl_id_t)) : NULL;
+
+  fprintf(gf, "{\n");
+  fprintf(gf, "\"states\": [");
+  list_t state_edges = list_new(SYSTEM_HEAP, sizeof(htbl_id_t), NULL);
   
   /*
    * insert the initial state and push it on the stack
@@ -119,6 +134,7 @@ void * dfs_worker
   htbl_meta_data_init(mdata, now);
   stbl_insert(H, mdata, is_new);
   id = mdata.id;
+  id_init = id;
   dfs_push_new_state(id, TRUE);
 
   /*
@@ -329,6 +345,9 @@ void * dfs_worker
               !htbl_get_attr(H, id_succ, ATTR_RED));
       }
 
+	printf("%u -> %u\n", id, id_succ);
+	list_append(state_edges, &id);
+	list_append(state_edges, &id_succ);
       if(push) { /* successor state must be explored */
         dfs_push_new_state(id_succ, FALSE);
       } else {
@@ -358,6 +377,20 @@ void * dfs_worker
     }
   }
 
+  fprintf(gf, "]\n");
+  printf("--------\n");
+  fprintf(gf, "\"edges\": [");
+  for (i = 0; i < list_size(state_edges); i = i + 2) {
+	  id = *((htbl_id_t*)list_nth(state_edges, i));
+	  id_succ = *((htbl_id_t*)list_nth(state_edges, i + 1));
+	fprintf(gf, "[%u, %u]\n", id, id_succ);
+	if (i + 2 < list_size(state_edges)) {
+		fprintf(gf, ",");
+	}
+  }
+  fprintf(gf, "]");
+  fprintf(gf, "}\n");
+
   /*
    * free everything
    */
@@ -370,6 +403,7 @@ void * dfs_worker
     darray_free(scc);
     darray_free(scc_stack);
   }
+  context_close_graph_file();
 
   return NULL;
 }

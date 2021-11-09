@@ -85,6 +85,9 @@ package Pn.Compiler.State is
    function Local_State_To_Xml_Func
      (P: in Place) return Ustring;
 
+   function Local_State_To_Json_Func
+     (P: in Place) return Ustring;
+
    function Local_State_Bit_Width_Func
      (P: in Place) return Ustring;
 

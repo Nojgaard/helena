@@ -69,6 +69,12 @@ void state_to_xml
   mstate_to_xml(s->m, out);
 }
 
+void state_to_json
+(state_t s,
+ FILE * out) {
+  mstate_to_json(s->m, out);
+}
+
 uint16_t state_char_size
 (state_t s) {
   return sizeof(bstate_t) + mstate_char_size(s->m);

@@ -389,6 +389,23 @@ package body Pn.Classes.Containers is
       Plc(Lib, 2, Cls_To_Xml_Func(C.Elements) & " (expr.items[i], out);");
       Plc(Lib, 1, "fprintf (out, ""</exprList>\n</container>\n"");");
       Plc(Lib, "}");
+
+      --  to xml function
+      --===
+      Prototype :=
+        "void " & Cls_To_Json_Func(C.Me) & " (" & Nl &
+	"   " & Cls_Name(C.Me) & " expr," & Nl &
+        "   FILE * out)";
+      Plh(Lib, Prototype & ";");
+      Plc(Lib, Prototype & "{");
+      Plc(Lib, 1, "int i = 0;");
+      Plc(Lib, 1, "fprintf (out, ""["");");
+      Plc(Lib, 1, "for(; i < expr.length; i++){");
+      Plc(Lib, 2, Cls_To_Json_Func(C.Elements) & " (expr.items[i], out);");
+      Plc(Lib, 1, "if (i + 1 < expr.length) { fprintf (out, "",""); }");
+      Plc(Lib, 1, "}");
+      Plc(Lib, 1, "fprintf (out, ""]"");");
+      Plc(Lib, "}");
    end;
 
    procedure Compile_Hash_Function

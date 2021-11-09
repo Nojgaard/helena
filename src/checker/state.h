@@ -43,6 +43,7 @@ hkey_t state_hash(state_t s);
 state_t state_copy(state_t s, heap_t heap);
 void state_print(state_t s, FILE *  out);
 void state_to_xml(state_t s, FILE *  out);
+void state_to_json(state_t s, FILE *  out);
 uint16_t state_char_size(state_t s);
 void state_serialise(state_t s, char * v, uint16_t * size);
 state_t state_unserialise(char * v, heap_t heap);
@@ -68,6 +69,7 @@ typedef mstate_t state_t;
 #define state_copy mstate_copy
 #define state_print mstate_print
 #define state_to_xml mstate_to_xml
+#define state_to_json mstate_to_json
 #define state_char_size mstate_char_size
 #define state_serialise mstate_serialise
 #define state_unserialise mstate_unserialise

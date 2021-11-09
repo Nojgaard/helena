@@ -216,6 +216,19 @@ package body Pn.Classes.Discretes.Nums is
       Plc(Lib, 1, "fprintf (out, ""<num>%lli</num>\n""," &
             " (long long int) expr);");
       Plc(Lib, "}");
+
+      --===
+      --  to json function
+      --===
+      Prototype :=
+        "void " & Cls_To_Json_Func(C.Me) & " (" & Nl &
+       	"   " & Cls_Name(C.Me) & " expr," & Nl &
+        "   FILE * out)";
+      Plh(Lib, Prototype & ";");
+      Plc(Lib, Prototype & " {");
+      Plc(Lib, 1, "fprintf (out, ""%lli""," &
+            " (long long int) expr);");
+      Plc(Lib, "}");
    end;
 
    procedure Compile_Others

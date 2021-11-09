@@ -529,10 +529,10 @@ struct timeval context_start_time
 FILE * context_open_graph_file
 () {
   FILE * result = NULL;
-  if(CFG_ACTION_BUILD_GRAPH) {
+  /* if(CFG_ACTION_BUILD_GRAPH) { */
     CTX->graph_file = fopen(CFG_GRAPH_FILE, "w");
     result = CTX->graph_file;
-  }
+  /* } */
   return result;
 }
 

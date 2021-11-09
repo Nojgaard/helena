@@ -300,6 +300,12 @@ package body Pn.Compiler.Names is
       return "TYPE__FUNC_" & Simple_Name(C) & "_to_xml";
    end;
 
+   function Cls_To_Json_Func
+     (C: in Cls) return Ustring is
+   begin
+      return "TYPE__FUNC_" & Simple_Name(C) & "_to_json";
+   end;
+
    function Cls_Assign_Comp_Func
      (C: in Cls;
       F: in Ustring) return Ustring is

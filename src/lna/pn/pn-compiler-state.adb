@@ -63,6 +63,9 @@ package body Pn.Compiler.State is
    function Local_State_To_Xml_Func
      (P: in Place) return Ustring is
    begin return "mstate_" & Place_Name(P) & "_to_xml"; end;
+   function Local_State_To_Json_Func
+     (P: in Place) return Ustring is
+   begin return "mstate_" & Place_Name(P) & "_to_json"; end;
    function Local_State_Hash_Func
      (P: in Place) return Ustring is
    begin return "mstate_" & Place_Name(P) & "_hash"; end;
@@ -398,6 +401,30 @@ package body Pn.Compiler.State is
       Plc(L, "}");
       --=======================================================================
       Prototype :=
+        "void " & Local_State_To_Json_Func(P) & " (" & Nl &
+        "   " & Local_State_Type(P) & " s," & Nl &
+        "   FILE * out)";
+      Plh(L, Prototype & ";");
+      Plc(L, Prototype & " {");
+      Plc(L, 1, T & " l = s.list;");
+      Plc(L, 1, "for (; l; l = l->next) {");
+      Plc(L, 2, "fprintf (out, " &
+            """[%d,""" &
+            ", l->mult);");
+      for I in 1..Size(D) loop
+	 --  Plc(L, 1, "fprintf (out, ""["");");
+         C := Ith(D, I);
+         Plc(L, 2, Cls_To_Json_Func(C) &
+               "(l->c." & Dom_Ith_Comp_Name(I) & ", out);");
+	 --  Plc(L, 1, "fprintf (out, ""]"");");
+      end loop;
+      Plc(L, 2, "fprintf (out, ""]"");");
+      Plc(L, 1, "if (l->next) { fprintf(out, "",""); }");
+
+      Plc(L, 1, "}");
+      Plc(L, "}");
+      --=======================================================================
+      Prototype :=
         "void " & Local_State_Union_Func(P) & " (" & Nl &
         "   " & Local_State_Type(P) & " * p," & Nl &
         "   " & Local_State_Type(P) & "   q)";
@@ -592,6 +619,30 @@ package body Pn.Compiler.State is
          Plc(L, 1, "fprintf (out, ""</placeState>\n"");");
          Plc(L, 1, "}");
       end loop;
+      Plc(L, "}");
+      --=======================================================================
+      Prototype := To_Ustring
+        ("void mstate_to_json (" & Nl &
+           "   mstate_t s," & Nl &
+           "   FILE *   out)");
+      Plh(L, Prototype & ";");
+      Plc(L, Prototype & " {");
+	 Plc(L, 1, "fprintf (out, ""["");");
+	 Plc(L, 1, "int place_comma = 0;");
+      for I in 1..P_Size(N) loop
+         P := Ith_Place(N, I);
+         Comp := State_Component_Name(P);
+         Plc(L, 1, "if (!(" & Local_State_Is_Empty_Func(P) &
+             "(s->" & Comp & "))) {");
+         Plc(L, 1, "if (place_comma) { fprintf(out, "",""); } else { place_comma = 1; }");
+         Plc(L, 1, "fprintf (out, ""[\""" &
+               Get_Printable_String(Get_Name(P)) & "\"", "");");
+         Plc(L, 2, Local_State_To_Json_Func(P) & " (s->" & Comp & ", out);");
+         Plc(L, 1, "fprintf (out, ""]"");");
+
+         Plc(L, 1, "}");
+      end loop;
+	 Plc(L, 1, "fprintf (out, ""]\n"");");
       Plc(L, "}");
       --=======================================================================
       Prototype := To_Ustring
