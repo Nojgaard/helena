@@ -381,7 +381,7 @@ void * dfs_worker
     }
   }
 
-  fprintf(gf, "]\n");
+  fprintf(gf, "],\n");
   printf("--------\n");
   fprintf(gf, "\"edges\": [");
   for (i = 0; i < list_size(state_edges); i = i + 3) {
@@ -389,7 +389,7 @@ void * dfs_worker
 	  id_succ = *((htbl_id_t*)list_nth(state_edges, i + 1));
 	  unsigned int tid = *((htbl_id_t*)list_nth(state_edges, i + 2));
 	fprintf(gf, "[%u, %u, %u]\n", id, id_succ, tid);
-	if (i + 2 < list_size(state_edges)) {
+	if (i + 3 < list_size(state_edges)) {
 		fprintf(gf, ",");
 	}
   }
