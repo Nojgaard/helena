@@ -174,6 +174,14 @@ package body Pn.Compiler.Event is
       Plc(L, "}");
       --=======================================================================
       Prototype := To_Ustring
+	("tr_id_t mevent_tid" & Nl &
+	   "(mevent_t e)");
+      Plh(L, Prototype & ";");
+      Plc(L, Prototype & " {");
+      Plc(L, 1, "return e.tid;");
+      Plc(L, "}");
+      --=======================================================================
+      Prototype := To_Ustring
 	("void mevent_free (" & Nl &
 	   "   mevent_t e)");
       Plh(L, Prototype & ";");

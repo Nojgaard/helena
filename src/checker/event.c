@@ -274,6 +274,10 @@ void event_unserialise_void
   memcpy(item, &e, sizeof(event_t));
 }
 
+/* unsigned int event_tid(event_t e) { */
+/* 	return 0; */
+/* } */
+
 unsigned int event_list_char_size
 (event_list_t l) {
   return list_char_size(l, event_char_size_void);

@@ -126,7 +126,7 @@ compileCFiles () {
 	links=$links" "$f".o"
 	if [ ! -e $f.o ]
 	then
-	    cmd="$CC -c $f.c"
+	    cmd="$CC -w -c $f.c"
 	    msg "   > "$cmd
 	    eval $cmd	
 	    if [ ! $? -eq 0 ]

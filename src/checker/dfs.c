@@ -127,6 +127,7 @@ void * dfs_worker
   fprintf(gf, "{\n");
   fprintf(gf, "\"states\": [");
   list_t state_edges = list_new(SYSTEM_HEAP, sizeof(htbl_id_t), NULL);
+  /* list_t event_edges = list_new(SYSTEM_HEAP, sizeof(event_t), NULL); */
   
   /*
    * insert the initial state and push it on the stack
@@ -345,9 +346,12 @@ void * dfs_worker
               !htbl_get_attr(H, id_succ, ATTR_RED));
       }
 
-	printf("%u -> %u\n", id, id_succ);
+	printf("%u -> %u (%u)\n", id, id_succ, event_tid(e));
+	unsigned int etid = event_tid(e);
 	list_append(state_edges, &id);
 	list_append(state_edges, &id_succ);
+	list_append(state_edges, &etid);
+	/* event_to_xml(e, gf); */
       if(push) { /* successor state must be explored */
         dfs_push_new_state(id_succ, FALSE);
       } else {
@@ -380,10 +384,11 @@ void * dfs_worker
   fprintf(gf, "]\n");
   printf("--------\n");
   fprintf(gf, "\"edges\": [");
-  for (i = 0; i < list_size(state_edges); i = i + 2) {
+  for (i = 0; i < list_size(state_edges); i = i + 3) {
 	  id = *((htbl_id_t*)list_nth(state_edges, i));
 	  id_succ = *((htbl_id_t*)list_nth(state_edges, i + 1));
-	fprintf(gf, "[%u, %u]\n", id, id_succ);
+	  unsigned int tid = *((htbl_id_t*)list_nth(state_edges, i + 2));
+	fprintf(gf, "[%u, %u, %u]\n", id, id_succ, tid);
 	if (i + 2 < list_size(state_edges)) {
 		fprintf(gf, ",");
 	}
